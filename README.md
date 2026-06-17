@@ -54,6 +54,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\central_v2_admin",
+      "publishPath": "\\central_v2_admin",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
@@ -92,6 +93,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\central_v2_api",
+      "publishPath": "\\central_v2_api",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
@@ -130,6 +132,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\central_v2_login",
+      "publishPath": "\\central_v2_login",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
@@ -168,6 +171,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\central_v3_admin",
+      "publishPath": "\\central_v3_admin",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
@@ -206,6 +210,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\central_v3_api",
+      "publishPath": "\\central_v3_api",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
@@ -244,6 +249,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\central_v3_login",
+      "publishPath": "\\central_v3_login",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
@@ -282,6 +288,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\fo_v2_app",
+      "publishPath": "\\fo_v2_app",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
@@ -320,6 +327,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\fo_v2_ext_api",
+      "publishPath": "\\fo_v2_ext_api",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
@@ -358,6 +366,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\fo_v3_app",
+      "publishPath": "\\fo_v3_app",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
@@ -396,6 +405,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     "deploymentSettings": {
       "backupBeforePublish": true,
       "backupPath": "C:\\inetpub\\backups\\fo_v3_ext_api",
+      "publishPath": "\\fo_v3_ext_api",
       "stopSiteBeforePublish": true,
       "startSiteAfterPublish": true
     }
