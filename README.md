@@ -45,7 +45,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "CentralAccessDB",
         "HotelResWeb_AuditTail"
@@ -84,7 +84,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "CentralAccessDB",
         "HotelResWeb_AuditTail"
@@ -123,7 +123,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "CentralAccessDB",
         "HotelResWeb_AuditTail"
@@ -162,7 +162,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "CentralAccessDB",
         "HotelResWeb_AuditTail"
@@ -201,7 +201,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "CentralAccessDB",
         "HotelResWeb_AuditTail"
@@ -240,7 +240,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "CentralAccessDB",
         "HotelResWeb_AuditTail"
@@ -279,7 +279,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "HotelResWeb",
         "HotelResWeb_AuditTail"
@@ -318,7 +318,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "HotelResWeb",
         "HotelResWeb_AuditTail"
@@ -357,7 +357,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "HotelResWeb",
         "HotelResWeb_AuditTail"
@@ -396,7 +396,7 @@ This repository contains IIS deployment configurations for the **Central** and *
     },
     "database": {
       "sqlServerVersion": "SQL Server 2019",
-      "compatibilityLevel": 150,
+      "compatibilityLevel": 130,
       "databasesToVerify": [
         "HotelResWeb",
         "HotelResWeb_AuditTail"
