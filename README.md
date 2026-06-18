@@ -22,6 +22,7 @@ This repository contains IIS deployment configurations for the **Central** and *
 [
   {
     "siteName": "central_v2_admin",
+    "configFileName": "Web.config",
     "port": 8092,
     "bindings": [
       {
@@ -61,6 +62,7 @@ This repository contains IIS deployment configurations for the **Central** and *
   },
   {
     "siteName": "central_v2_api",
+    "configFileName": "Web.config",
     "port": 8091,
     "bindings": [
       {
@@ -100,6 +102,7 @@ This repository contains IIS deployment configurations for the **Central** and *
   },
   {
     "siteName": "central_v2_login",
+    "configFileName": "Web.config",
     "port": 8090,
     "bindings": [
       {
@@ -139,6 +142,7 @@ This repository contains IIS deployment configurations for the **Central** and *
   },
   {
     "siteName": "central_v3_admin",
+    "configFileName": "appsettings.json",
     "port": 8092,
     "bindings": [
       {
@@ -178,6 +182,7 @@ This repository contains IIS deployment configurations for the **Central** and *
   },
   {
     "siteName": "central_v3_api",
+    "configFileName": "appsettings.json",
     "port": 8091,
     "bindings": [
       {
@@ -217,6 +222,7 @@ This repository contains IIS deployment configurations for the **Central** and *
   },
   {
     "siteName": "central_v3_login",
+    "configFileName": "appsettings.json",
     "port": 8090,
     "bindings": [
       {
@@ -256,6 +262,7 @@ This repository contains IIS deployment configurations for the **Central** and *
   },
   {
     "siteName": "fo_v2_app",
+    "configFileName": "Web.config",
     "port": 8040,
     "bindings": [
       {
@@ -295,6 +302,7 @@ This repository contains IIS deployment configurations for the **Central** and *
   },
   {
     "siteName": "fo_v2_ext_api",
+    "configFileName": "Web.config",
     "port": 8050,
     "bindings": [
       {
@@ -334,6 +342,7 @@ This repository contains IIS deployment configurations for the **Central** and *
   },
   {
     "siteName": "fo_v3_app",
+    "configFileName": "appsettings.json",
     "port": 8040,
     "bindings": [
       {
@@ -373,6 +382,7 @@ This repository contains IIS deployment configurations for the **Central** and *
   },
   {
     "siteName": "fo_v3_ext_api",
+    "configFileName": "appsettings.json",
     "port": 8050,
     "bindings": [
       {
