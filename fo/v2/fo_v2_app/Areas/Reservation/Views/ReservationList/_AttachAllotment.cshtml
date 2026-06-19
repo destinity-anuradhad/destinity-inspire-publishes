@@ -1,0 +1,539 @@
+﻿@model List<Scienter.HotelERP.Common.Domain.AllotmentDetails>
+
+<style>
+    element.style {
+        width: 800px;
+    }
+
+    .container-padding {
+        padding: 50px 250px;
+    }
+</style>
+
+<input type="hidden" id="ReservationHeaderIdForAllotment" value="@ViewBag.ReservationHeaderId" />
+<input type="hidden" id="roomCategoryIdForAllotment" value="@ViewBag.roomCategoryId" />
+<input type="hidden" id="hidden-Uuid" value="@ViewBag.Uuid" />
+
+<div class="container container-padding">
+
+    <form id="allotmentDetailList">
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset class="the-fieldset">
+                    <legend class="the-legend"><font size="2"></font> Allotment Details</legend>
+                    <div id="AllotmentList" overflow-x:hidden; overflow-y:scroll;">
+                        @if (Model.Count > 0)
+                        {
+                            <input type="hidden" id="AllotmentHeader" name="AllotmentHeader" value="0">
+                            <input type="hidden" id="RoomCategory" name="RoomCategory" value="0">
+                            <input type="hidden" id="ReservationRoomCategoryId" name="ReservationRoomCategoryId" value="0">
+                            <input type="hidden" id="Model" name="Model" value="@Model">
+                        }
+                        else
+                        {
+
+                        }
+
+                        <table class="table table-striped table-hover" id="allotmentDetailGrid" cellspacing="5">
+                            <tr>
+                                <th></th>
+                                <th>Allotment</th>
+                                <th>Room Category</th>
+                                <th class="number">Tot.</th>
+                                <th class="number">Balance</th>
+                                <th hidden></th>
+                            </tr>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <fieldset class="the-fieldset">
+                    <legend class="the-legend"><font size="2"></font> Reservation Details </legend>
+                    <div id="ReservationList" overflow-x:hidden; overflow-y:scroll;">
+                        <table class="table table-striped table-hover" id="reservationGridForAllotment" cellspacing="5">
+                            <tr class="data-single-record">
+                                <th><div><div class="form-group checkbox"><label><input type="checkbox" id="isAll" class="isAll" /></label></div></div></th>
+                                <th class="text-primary " input type="text">
+                                    Reservation No
+                                </th>
+                                <th class="text-primary " input type="text">
+                                    Group Reservation No
+                                </th>
+                                <th class="text-primary " input type="text">
+                                    Company
+                                </th>
+                                <th class="text-primary " input type="text">
+                                    Market
+                                </th>
+                                <th class="text-primary " input type="text">
+
+                                </th>
+                            </tr>
+                        </table>
+
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <button type="button" id="btnApplyAllotment"
+                class="btn btn-sm btn-primary btn-apply-allotment"
+                disabled style="text-decoration:line-through">
+            Apply
+        </button>
+    </form>
+
+    </div>
+
+    <script>
+        var selectedAllotmentHeaderId = 0
+
+        $(document).ready(function () {
+            LoadReservationList();
+            LoadAllotmnetDetailList();
+        });
+
+        function ToggleApplyButton() {
+            var hasAllotment = (selectedAllotmentHeaderId > 0);
+            var hasReservation = ($('#reservationGridForAllotment .list-checkBox:checked').length > 0);
+
+            if (hasAllotment && hasReservation) {
+                $('#btnApplyAllotment')
+                    .prop('disabled', false)
+                    .css('text-decoration', 'none');
+            } else {
+                $('#btnApplyAllotment')
+                    .prop('disabled', true)
+                    .css('text-decoration', 'line-through');
+            }
+        }
+
+        //$('body').off('click', '.btn-remove-allotment').on('click', '.btn-remove-allotment', function (e) {
+
+        //    e.preventDefault();
+        //    var a = $(this).attr('data-reservation-heaader-id');
+        //    var b = $(this).attr('AllotmentHeaderId');
+        //    var c = $(this).attr('RoomCategoryId');
+
+        //    if (b>0) {
+        //        $.ajax({
+        //            url: '/Reservation/ReservationList/RemoveAllotment?ReservationHeaderId=' + a + '&AllotmentHeaderId=' + b + '&RoomCategoryId=' + c,
+        //            dataType: 'json',
+        //            method: 'get',
+        //            success: function (data) {
+        //                $('#grid-record-detail-model').modal('hide');
+        //                ShowSuccessMessage('Allotment removed.');
+        //                setTimeout(function () {
+        //                    //closeFullContent();
+        //                    LoadReservationGrid();
+        //                    LoadReservationList()
+        //                    LoadAllotmnetDetailList();
+        //                }, 2500);
+        //            },
+        //            error: function (aa, bb, cc) {
+
+        //            }
+        //        });
+        //    } else {
+        //        ShowWarningMessage('Please select a allotment to proceed.');
+        //    }
+
+           
+        //});
+
+        $('body').off('click', '.btn-remove-allotment').on('click', '.btn-remove-allotment', function (e) {
+            e.preventDefault();
+
+            var $btn = $(this);
+
+            // ✅ use clicked row reservation id if available, otherwise fallback to hidden
+            var reservationHeaderId =
+                ($btn.attr('data-reservation-heaader-id') || $btn.data('reservation-heaader-id') || $('#ReservationHeaderIdForAllotment').val());
+
+            var allotmentHeaderId =
+                ($btn.data('allotmentheaderid') || $btn.attr('data-allotmentheaderid') || $btn.attr('AllotmentHeaderId') || 0);
+
+            var roomCategoryId =
+                ($btn.data('roomcategoryid') || $btn.attr('data-roomcategoryid') || $btn.attr('RoomCategoryId') || 0);
+
+            allotmentHeaderId = parseInt(allotmentHeaderId, 10) || 0;
+            roomCategoryId = parseInt(roomCategoryId, 10) || 0;
+            reservationHeaderId = parseInt(reservationHeaderId, 10) || 0;
+
+            if (!(reservationHeaderId > 0) || !(allotmentHeaderId > 0) || !(roomCategoryId > 0)) {
+                ShowWarningMessage('Unable to identify allotment to remove. Please refresh and try again.');
+                return;
+            }
+
+            $.ajax({
+                url: '/Reservation/ReservationList/RemoveAllotment',
+                dataType: 'json',
+                method: 'get',
+                data: {
+                    ReservationHeaderId: reservationHeaderId,
+                    AllotmentHeaderId: allotmentHeaderId,
+                    RoomCategoryId: roomCategoryId
+                },
+                success: function () {
+                    ShowSuccessMessage('Allotment removed.');
+
+                    selectedAllotmentHeaderId = 0;
+                    $('#AllotmentHeader,#RoomCategory,#ReservationRoomCategoryId').val(0);
+                    $('.allotment-checkbox').prop('disabled', false);
+
+                    setTimeout(function () {
+                        LoadReservationGrid();
+                        LoadReservationList();
+                        LoadAllotmnetDetailList();
+                    }, 2500);
+                }
+            });
+        });
+
+
+
+
+
+
+        //$('body').off('click', '.btn-apply-allotment').on('click', '.btn-apply-allotment', function (e) {
+
+        //    e.preventDefault();
+        //    var ReservationHeaderId = $('#ReservationHeaderIdForAllotment').val();
+        //    var AllotmentHeaderId = selectedAllotmentHeaderId
+        //    var RoomCategoryId = $(this).attr('RoomCategoryId');
+
+        //    var selectedReservationList = [];
+        //    var isRecordSelected = false;
+
+        //    $('.data-single-filteration').each(function (index, item) {
+        //        if ($($(item).find('.list-checkBox')).prop('checked')) {
+        //            isRecordSelected = true;
+        //            return false;
+        //        }
+        //    });
+
+        //    if (isRecordSelected == false) {
+        //        ShowWarningMessage('Please select at least reservation.');
+        //    }
+        //    else {
+        //        $('.data-single-filteration').each(function (index, item) {
+        //            var res = {};
+        //            if ($($(item).find('.list-checkBox')).prop('checked')) {
+
+        //                res = {
+        //                    Id: $($(item).find('.list-checkBox')).val(),
+        //                    ReservationHeaderId: ReservationHeaderId,
+        //                    AllotmentHeaderId: AllotmentHeaderId,
+        //                    RoomCategoryId: RoomCategoryId,
+        //                }
+        //                selectedReservationList.push(res);
+        //            }
+        //        });
+
+        //        if (AllotmentHeaderId>0) {
+        //            $.ajax({
+        //                url: '/Reservation/ReservationList/AttachAllotment',
+        //                dataType: 'JSON',
+        //                data: { selectedReservationListForAllotment: selectedReservationList },
+        //                method: 'POST',
+        //                success: function (response) {
+        //                    if (response.startsWith("ERR")) {
+        //                        ShowWarningMessage(response.replace("ERR", ""));
+        //                    } else {
+        //                        $('#grid-record-detail-model').modal('hide');
+        //                        ShowSuccessMessage('Allotment Applied');
+        //                    }
+
+        //                    setTimeout(function () {
+        //                        // closeFullContent();
+        //                        LoadReservationList();
+        //                        LoadReservationGrid();
+        //                        LoadAllotmnetDetailList();
+
+        //                    }, 2500);
+        //                }
+        //            });
+        //        } else {
+        //            ShowWarningMessage('Please select a allotment to proceed');
+        //        }
+        //    }
+        //});
+
+        $('body').off('click', '.btn-apply-allotment').on('click', '.btn-apply-allotment', function (e) {
+            e.preventDefault();
+
+            var AllotmentHeaderId = selectedAllotmentHeaderId;
+
+            if (!(AllotmentHeaderId > 0)) {
+                ShowWarningMessage('Please select a allotment to proceed');
+                return;
+            }
+
+            var selectedReservationList = [];
+
+            // ✅ only checked rows
+            $('#reservationGridForAllotment .list-checkBox:checked').each(function () {
+
+                var $cb = $(this);
+
+                var reservationHeaderId = $cb.data('reservationheaderid') || $cb.val(); // ✅ from row
+                var roomCategoryId = $cb.data('roomcategoryid');                        // ✅ from row
+
+                selectedReservationList.push({
+                    Id: $cb.val(),                       // keep your Id
+                    ReservationHeaderId: reservationHeaderId,
+                    AllotmentHeaderId: AllotmentHeaderId,
+                    RoomCategoryId: roomCategoryId
+                });
+            });
+
+            if (selectedReservationList.length === 0) {
+                ShowWarningMessage('Please select at least reservation.');
+                return;
+            }
+
+            $.ajax({
+                url: '/Reservation/ReservationList/AttachAllotment',
+                dataType: 'json',
+                method: 'POST',
+                data: { selectedReservationListForAllotment: selectedReservationList },
+                success: function (response) {
+                    if ((response || '').startsWith("ERR")) {
+                        ShowWarningMessage(response.replace("ERR", ""));
+                    } else {
+                        $('#grid-record-detail-model').modal('hide');
+                        ShowSuccessMessage('Allotment Applied');
+                    }
+
+                    setTimeout(function () {
+                        LoadReservationList();
+                        LoadReservationGrid();
+                        LoadAllotmnetDetailList();
+                    }, 2500);
+                }
+            });
+        });
+
+
+        function LoadReservationList() {
+           
+            var ReservationHeaderId = $('#ReservationHeaderIdForAllotment').val();
+            var roomCategoryId = $('#roomCategoryIdForAllotment').val();
+
+            console.log(ReservationHeaderId);
+            $.ajax({
+                url: '/Reservation/ReservationList/SelectReservationListForAttachAllotment?ReservationHeaderId=' + ReservationHeaderId + '&roomCategoryId=' + roomCategoryId,
+                dataType: 'json',
+                method: 'get',
+                beforeSend: function () {
+                    //$('.data-single-filteration tr').remove();
+                    $('#reservationGridForAllotment tr').not(':first').remove();
+                },
+                success: function (data) {
+                    $.each(data, function (index, item) {
+                        //if (data.length > 0) {
+                        //    $("#reservationGridForAllotment tr:nth-child(2)").remove();
+                        //}
+                        var AllotmentHeaderId = selectedAllotmentHeaderId
+                        var RoomCategoryId = $('#RoomCategory').val();
+                        var ReservationRoomCategoryId = $('#ReservationRoomCategoryId').val();
+                        var btn = ''
+                        var isDisabled = "";
+
+                        console.log(item.IsAlreadyAttachedAllotment);
+
+                        if (item.IsAlreadyAttachedAllotment === true) {
+                            btn =
+                                '<button class="btn btn-sm btn-danger btn-remove-allotment" ' +
+                                ' data-reservation-heaader-id="' + item.Id + '" ' +
+                                ' data-allotmentheaderid="' + item.AllotmentHeaderId + '" ' +
+                                ' data-roomcategoryid="' + item.RoomCategoryId + '">' +
+                                'REMOVE</button>';
+
+                            isDisabled = 'disabled';
+                        }
+
+                        $('<tr class="data-single-filteration">' +
+                            '<td style="margin-right:0.2em">' +
+                            '    <div class="form-list checkbox">' +
+                            '        <label>' +
+                            '            <input class="list-checkBox" ' + isDisabled + ' type="checkbox" value="' + item.Id + '" data-reservationheaderid="' + item.Id + '" data-roomcategoryid="' + item.RoomCategoryId + '" />' +
+                            '        </label>' +
+                            '    </div>' +
+                            '</td>' +
+                            '<td>' +
+                            item.ReservationNo +
+                            '</td>' +
+                            '<td>' +
+                            item.GroupReservationNo +
+                            '</td>' +
+                            '<td>' +
+                            item.Company +
+                            '</td>' +
+                            '<td>' +
+                            item.Market +
+                            '</td>' +
+                            '<td>'
+                            +
+                            btn
+                            +
+                            '</td>' +
+                            '</tr>'
+                        ).appendTo("#reservationGridForAllotment");
+                    });
+                }
+            });
+        }
+
+        $('body').off('click', '#isAll').on('click', '#isAll', function () {
+            if ($('#isAll').is(':checked')) {
+                $('.list-checkBox').not(':disabled').prop('checked', true);
+
+            } else {
+                $('.list-checkBox').prop('checked', false);
+            }
+
+            ToggleApplyButton();
+        });
+
+        function LoadAllotmnetDetailList() {
+            var ReservationHeaderId = $('#ReservationHeaderIdForAllotment').val();
+            var roomCategoryId = $('#roomCategoryIdForAllotment').val();
+
+            $.ajax({
+                url: '/Reservation/ReservationList/AvailableAllotments?ReservationHeaderId=' + ReservationHeaderId + '&roomCategoryId=' + roomCategoryId,
+                dataType: 'json',
+                method: 'get',
+                beforeSend: function () {
+                    $('#allotmentDetailGrid tr').not(':first').remove();
+                },
+                success: function (data) {
+                    $.each(data, function (index, item) {
+                        //if (data.length > 0) {
+                        //    $("#allotmentDetailGrid tr:nth-child(2)").remove();
+                        //}
+
+                        var button = "";
+
+                        if (item.IsAlreadyAttachedAllotment) {
+                            if (item.ReservationRoomCategoryId == item.RoomCategoryId) {
+                                button =
+                                    '<button class="btn btn-sm btn-danger btn-remove-allotment" ' +
+                                    ' data-allotmentheaderid="' + item.AllotmentHeaderId + '" ' +
+                                    ' data-roomcategoryid="' + item.RoomCategoryId + '">' +
+                                    'Remove</button>';
+                            }
+                        } else {
+                             if (item.RoomBalance <= 0 || item.ReservationRoomCategoryId != item.RoomCategoryId)
+                             {
+                                 button ='<button class="btn btn-sm btn-primary" style="text-decoration:line-through">Apply</button>'
+                             }
+                             else
+                             {
+                                 button ='<button class="btn btn-sm btn-primary btn-apply-allotment" RoomCategoryId="'+item.RoomCategoryId+'" >Apply</button>'
+                             }
+                        }
+
+                        $(
+                            '<tr class="grid-allotment-load">' +
+                            '<td><div class="checkbox"><label>' +
+                            '<input type="checkbox" data-allotmentHeaderId="' + item.AllotmentHeaderId + '" data-roomcategoryid="' + item.RoomCategoryId + '" data-reservationroomcategoryid="' + item.ReservationRoomCategoryId + '" data-roombalance="' + item.RoomBalance + '"  value="' + item.AllotmentHeaderId + '" class="form-group allotment-checkbox" >' +
+                            '</label></div></td>' +
+                            '<td>'+item.Name+'</td>'+
+                            '<td>' + item.RoomCategoryName +'</td>'+
+                            '<td class="number">' + item.NoOfRooms +'</td>'+
+                            '<td class="number">' + item.RoomBalance +'</td>'+
+                            '<td hidden>' +
+                            button +
+                            '</td>' +
+                            '</tr>'
+                           
+                        ).appendTo("#allotmentDetailGrid");
+                    });
+                }
+            });
+        }
+
+        //$(document).on('change', '.allotment-checkbox', function () {
+        //    if ($(this).is(':checked')) {
+        //        // Checkbox is checked, get its allotmentHeaderId
+        //        selectedAllotmentHeaderId = $(this).data('allotmentheaderid');
+        //        // Disable all other checkboxes
+        //        $('.allotment-checkbox').not(this).prop('disabled', true);
+        //    } else {
+        //        // Checkbox is unchecked, reset variable
+        //        selectedAllotmentHeaderId = 0;
+        //        // Enable all checkboxes
+        //        $('.allotment-checkbox').prop('disabled', false);
+        //    }
+
+        //});
+
+        // Allotment checkbox change (single-select + filter reservation checkboxes)
+        $('body').off('change', '.allotment-checkbox').on('change', '.allotment-checkbox', function () {
+
+                var $this = $(this);
+
+                if ($this.is(':checked')) {
+
+                    // store selected allotment header id
+                    selectedAllotmentHeaderId = $this.data('allotmentheaderid') || 0;
+
+                    // ✅ NEW: update hidden fields based on selected allotment
+                    $('#AllotmentHeader').val(selectedAllotmentHeaderId);
+                    $('#RoomCategory').val($this.data('roomcategoryid') || 0);
+                    $('#ReservationRoomCategoryId').val($this.data('reservationroomcategoryid') || 0);
+
+                    // disable other allotment checkboxes
+                    $('.allotment-checkbox').not($this).prop('disabled', true);
+
+                    // get selected allotment room category
+                    var selectedRoomCategoryId = String($this.data('roomcategoryid') || '');
+
+                    // disable reservation checkboxes that don't match
+                    $('#reservationGridForAllotment .list-checkBox').each(function () {
+                        var $cb = $(this);
+
+                        // keep those that are already disabled by your grid logic
+                        if ($cb.is(':disabled')) return;
+
+                        var resRoomCategoryId = String($cb.data('roomcategoryid') || '');
+
+                        if (resRoomCategoryId !== selectedRoomCategoryId) {
+                            $cb.prop('checked', false)
+                                .prop('disabled', true)
+                                .attr('data-filter-disabled', '1'); // mark as disabled by filter
+                        } else {
+                            $cb.prop('disabled', false);
+                        }
+                    });
+
+                } else {
+
+                    // reset selected allotment
+                    selectedAllotmentHeaderId = 0;
+
+                    $('#AllotmentHeader').val(0);
+                    $('#RoomCategory').val(0);
+                    $('#ReservationRoomCategoryId').val(0);
+
+                    // enable all allotment checkboxes
+                    $('.allotment-checkbox').prop('disabled', false);
+
+                    // re-enable only the reservation checkboxes we disabled via filter
+                    $('#reservationGridForAllotment .list-checkBox[data-filter-disabled="1"]')
+                        .prop('disabled', false)
+                        .removeAttr('data-filter-disabled');
+            }
+
+             ToggleApplyButton();
+            });
+
+        $('body').off('change', '.list-checkBox').on('change', '.list-checkBox', function () {
+            ToggleApplyButton();
+        });
+
+
+    </script>

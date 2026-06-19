@@ -1,0 +1,713 @@
+﻿
+@{
+    Layout = null;
+}
+
+<style>
+    .member-popup {
+        padding: 12px;
+        font-family: Arial, sans-serif;
+    }
+
+    .mp-header {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .mp-title {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .mp-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .mp-input {
+        width: 360px;
+        padding: 8px 10px;
+        border: 1px solid #cfcfcf;
+        border-radius: 4px;
+    }
+
+    .mp-btn {
+        padding: 8px 12px;
+        border: 1px solid #cfcfcf;
+        background: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .mp-btn:hover {
+            background: #f5f5f5;
+        }
+
+    .mp-btn-primary {
+        border-color: #094F70;
+        background: #094F70;
+        color: #fff;
+    }
+
+        .mp-btn-primary:hover {
+            background: #073e58;
+        }
+
+    .mp-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .mp-status {
+        min-height: 18px;
+        margin: 6px 0 10px;
+    }
+
+    .mp-loading {
+        color: #555;
+        font-size: 12px;
+    }
+
+    .mp-error {
+        color: #b00020;
+        font-size: 12px;
+    }
+
+    .mp-table-wrap {
+        border: 1px solid #e1e1e1;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .mp-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .mp-table thead th {
+            background: #f7f7f7;
+            text-align: left;
+            font-size: 12px;
+            padding: 10px;
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        .mp-table tbody td {
+            font-size: 12px;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .mp-table tbody tr {
+            cursor: pointer;
+        }
+
+            .mp-table tbody tr:hover {
+                background: #f8fbfd;
+            }
+
+            .mp-table tbody tr.is-selected {
+                background: #e6f3f9;
+            }
+
+    .mp-empty {
+        text-align: center;
+        color: #777;
+        padding: 16px !important;
+    }
+
+    .mp-footer {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mp-selected {
+        font-size: 12px;
+        color: #444;
+    }
+
+    .mp-selected-badge {
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #d7e7ef;
+        background: #f3fbff;
+        color: #094F70;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.2px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+        .mp-selected-badge.is-empty {
+            border-color: #f3d6d6;
+            background: #fff5f5;
+            color: #b00020;
+        }
+
+        .mp-selected-badge.is-selected {
+            border-color: #094F70;
+            background: #e6f3f9;
+            color: #094F70;
+        }
+
+</style>
+
+<input type="hidden" name="MemberCode" value="@ViewBag.MemberCode" id="MemberCode" />
+<div class="member-popup">
+    <!-- Existing attached member(s) (Edit mode) -->
+    <div id="divExistingMemberSection" style="display:none; margin-bottom:12px;">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div class="mp-title">Attached Member</div>
+
+            <button type="button" id="btnDetachMember" class="mp-btn" style="display:none;">
+                Detach
+            </button>
+        </div>
+
+        <div id="divExistingMemberEmpty" class="mp-error" style="display:none; color:#444;">
+            This reservation doest not attached to any members yet
+        </div>
+
+        <div id="divExistingMemberGrid" class="mp-table-wrap" style="display:none;">
+            <table class="mp-table">
+                <thead>
+                    <tr>
+                        <th style="width:180px;">Member Code</th>
+                        <th>Guest Name</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyExistingMembers"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div id="divMemberReservationWarn"
+         style="display:none; margin-bottom:10px; padding:10px 12px; border:1px solid #f3d6d6; background:#fff5f5; border-radius:8px; color:#b00020; font-weight:700;">
+    </div>
+
+
+    <div class="mp-header">
+        <div class="mp-title">Select Member</div>
+
+        <div class="mp-actions">
+            <input type="text" id="txtMemberSearch" class="mp-input"
+                   placeholder="Search member code / guest name" />
+
+            <button type="button" id="btnMemberSearch" class="mp-btn mp-btn-primary">Search</button>
+            <button type="button" id="btnMemberClear" class="mp-btn">Clear</button>
+        </div>
+    </div>
+
+    <div class="mp-status">
+        <span id="mpLoading" class="mp-loading" style="display:none;">Loading...</span>
+        <span id="mpError" class="mp-error" style="display:none;"></span>
+    </div>
+
+    <div class="mp-table-wrap">
+        <table class="mp-table">
+            <thead>
+                <tr>
+                    <th style="width: 180px;">Member Code</th>
+                    <th>Guest Name</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyMembers">
+                <tr>
+                    <td colspan="2" class="mp-empty">Type and search to load members…</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mp-footer">
+        @*<div class="mp-selected" id="mpSelectedText">No member selected</div>*@
+
+        <div class="mp-selected mp-selected-badge" id="mpSelectedText">
+            No member selected
+        </div>
+
+        <div>
+            <button type="button" id="btnMemberSelect" class="mp-btn mp-btn-primary" disabled>Select</button>
+            <button type="button" id="btnMemberClose" class="mp-btn">Close</button>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="EditedReservationHeaderId" id="EditedReservationHeaderId" value="@ViewBag.EditedReservationHeaderId" />
+
+<script>
+    var urlAttachMemberReference = '@Url.Action("AttachMemberReference", "Reservations", new { area = "reservation" })';
+
+    (function () {
+
+        var selectedMember = null;
+        var topRowsDefault = 20;
+        var attachLocked = false; 
+
+        $(document).ready(function () {
+
+            var reservationHeaderId = parseInt($('#EditedReservationHeaderId').val() || '0', 10);
+
+            if (reservationHeaderId > 0) {
+                LoadExistingRecords();     // edit mode: may lock or unlock
+            } else {
+                setAttachLock(false);      // new reservation: always allow attach
+                $('#divExistingMemberSection').hide();
+            }
+
+            // if member reservation -> lock and stop further attach actions
+            if (CheckMemberReservationAndLock() === true) {
+                // you can still load existing records if you want:
+                LoadExistingRecords();
+                return;
+            }
+
+            loadMembers('', 10); // keep your existing default load
+        });
+
+        function CheckMemberReservationAndLock() {
+
+            var resId = parseInt($('#EditedReservationHeaderId').val() || '0', 10);
+            if (resId <= 0) return; // only for edit mode
+
+            var memberCode = ($('#MemberCode').val() || '').trim();
+          
+            if (memberCode.length > 0) {
+
+                // show message
+                $('#divMemberReservationWarn').show().html(
+                    'Member Reservation (<b>' + memberCode + '</b>)<br/>Member reservations cannot be attached to another member.'
+                );
+
+                // lock attach flow (disable search + select + rows)
+                setAttachLock(true);
+
+                // also update selected text badge if you want
+                $('#mpSelectedText')
+                    .removeClass('is-empty')
+                    .addClass('is-selected')
+                    .text('Member reservation. Attach is disabled.');
+
+                // hide detach button too (since attach not allowed anyway)
+                $('#btnDetachMember').hide();
+
+                return true;
+            }
+
+            $('#divMemberReservationWarn').hide().html('');
+            return false;
+        }
+
+        function setAttachLock(isLocked) {
+            attachLocked = isLocked;
+
+            // Lock search area + select button
+            $('#txtMemberSearch').prop('disabled', isLocked);
+            $('#btnMemberSearch').prop('disabled', isLocked);
+            $('#btnMemberClear').prop('disabled', isLocked);
+            $('#btnMemberSelect').prop('disabled', true);
+
+            // Lock row clicking completely
+            if (isLocked) {
+                $('#tbodyMembers').css('pointer-events', 'none').css('opacity', '0.6');
+            } else {
+                $('#tbodyMembers').css('pointer-events', '').css('opacity', '');
+            }
+        }
+
+
+        function setAttachModeDisabled(isDisabled) {
+            $('#txtMemberSearch').prop('disabled', isDisabled);
+            $('#btnMemberSearch').prop('disabled', isDisabled);
+            $('#btnMemberClear').prop('disabled', isDisabled);
+
+            // also disable select
+            $('#btnMemberSelect').prop('disabled', true);
+
+            // prevent selecting rows while disabled
+            if (isDisabled) {
+                $('#tbodyMembers .mp-row').addClass('disabled-row');
+            } else {
+                $('#tbodyMembers .mp-row').removeClass('disabled-row');
+            }
+        }
+
+        function renderExistingMembers(list) {
+
+            $('#divExistingMemberSection').show();
+
+            var hasAttached = (list && list.length > 0);
+
+            if (!hasAttached) {
+                $('#divExistingMemberGrid').hide();
+                $('#divExistingMemberEmpty').show();
+                $('#btnDetachMember').hide();
+
+                // ✅ allow attach
+                setAttachLock(false);
+                return;
+            }
+
+            // show 1 row (your rule: only 1 member per reservation)
+            var m = list[0];
+
+            $('#divExistingMemberEmpty').hide();
+            $('#divExistingMemberGrid').show();
+            $('#btnDetachMember').show();
+
+            var $tbody = $('#tbodyExistingMembers');
+            $tbody.empty();
+            $tbody.append(
+                '<tr>' +
+                '<td>' + escapeCell(m.MemberCode || '') + '</td>' +
+                '<td>' + escapeCell(m.GuestName || '') + '</td>' +
+                '</tr>'
+            );
+
+            // ✅ block attach until detached
+            setAttachLock(true);
+
+            $('#mpSelectedText')
+                .removeClass('is-empty')
+                .addClass('is-selected')
+                .text('A member is already attached. Detach to attach a different member.');
+
+           // $('#mpSelectedText').text('A member is already attached. Detach to attach a different member.');
+        }
+
+
+        // Prevent row selection if disabled
+        $(document).on('click', '#tbodyMembers .mp-row', function () {
+            if ($('#txtMemberSearch').is(':disabled')) return; // attach mode disabled
+            // ... keep your existing row-click logic below this line ...
+        });
+
+        $('#btnDetachMember').on('click', function () {
+
+            var reservationHeaderId = parseInt($('#EditedReservationHeaderId').val() || '0', 10);
+            if (reservationHeaderId <= 0) return;
+
+            if (!confirm('Detach the attached member from this reservation?')) return;
+
+            $.ajax({
+                url: '/reservation/reservations/DetachAttachedMemberReference',
+                type: 'POST',
+                dataType: 'json',
+                data: { reservationHeaderId: reservationHeaderId },
+                success: function (data) {
+                    if (data && data.success === false) {
+                        setError(data.message || 'Failed to detach. Please try again.');
+                        return;
+                    }
+
+                    setError(null);
+
+                    // ✅ unlock immediately
+                    setAttachLock(false);
+
+                    // refresh existing members section
+                    LoadExistingRecords();
+
+
+                    // reset selection
+                    selectedMember = null;
+                    $('#btnMemberSelect').prop('disabled', true);
+                    $('#mpSelectedText')
+                        .removeClass('is-selected')
+                        .addClass('is-empty')
+                        .text('No member selected');
+
+                },
+                error: function () {
+                    setError('Failed to detach. Please try again.');
+                }
+            });
+        });
+
+
+        function LoadExistingRecords() {
+            var reservationHeaderId = parseInt($('#EditedReservationHeaderId').val() || '0', 10);
+
+            if (reservationHeaderId <= 0) {
+                setAttachLock(false);
+                $('#divExistingMemberSection').hide();
+                return;
+            }
+
+            $.ajax({
+                url: '/reservation/reservations/GetAttachedMemberReference',
+                type: 'GET',
+                dataType: 'json',
+                data: { reservationHeaderId: reservationHeaderId },
+                success: function (data) {
+                    if (data && data.success === false) {
+                        renderExistingMembers([]);
+                        return;
+                    }
+                    renderExistingMembers(data); // this decides lock/unlock
+                },
+                error: function () {
+                    renderExistingMembers([]);
+                }
+            });
+        }
+
+
+        function setLoading(isLoading) {
+            $('#mpLoading').toggle(isLoading);
+
+            // If attach is locked, keep them disabled no matter what
+            var disableSearchArea = isLoading || attachLocked;
+
+            $('#btnMemberSearch').prop('disabled', disableSearchArea);
+            $('#btnMemberClear').prop('disabled', disableSearchArea);
+            $('#txtMemberSearch').prop('disabled', disableSearchArea);
+
+            // Select button must be disabled while loading or locked
+            if (isLoading || attachLocked) {
+                $('#btnMemberSelect').prop('disabled', true);
+            }
+        }
+
+
+        function setError(msg) {
+            if (msg) $('#mpError').text(msg).show();
+            else $('#mpError').text('').hide();
+        }
+
+        function escapeCell(s) {
+            if (s === null || s === undefined) return '';
+            return $('<div/>').text(String(s)).html();
+        }
+
+        function renderRows(list) {
+            var $tbody = $('#tbodyMembers');
+            $tbody.empty();
+
+            if (!list || list.length === 0) {
+                $tbody.append('<tr><td colspan="2" class="mp-empty">No members found</td></tr>');
+                return;
+            }
+
+            for (var i = 0; i < list.length; i++) {
+                var m = list[i];
+
+                var memberCode = m.MemberCode || '';
+                var guestName = m.GuestName || '';
+
+                var tr = $('<tr class="mp-row"></tr>');
+                tr.data('member', m);
+                tr.append('<td>' + escapeCell(memberCode) + '</td>');
+                tr.append('<td>' + escapeCell(guestName) + '</td>');
+
+                $tbody.append(tr);
+            }
+        }
+
+        function loadMembers(searchText, topRows) {
+            setError(null);
+            setLoading(true);
+
+            selectedMember = null;
+            $('#btnMemberSelect').prop('disabled', true);
+            $('#mpSelectedText')
+                .removeClass('is-selected')
+                .addClass('is-empty')
+                .text('No member selected');
+
+            $('#tbodyMembers .mp-row').removeClass('is-selected');
+
+            $.ajax({
+                url: '/reservation/reservations/SelectMemberGuestDetails',
+                type: 'GET',
+                dataType: 'json',
+                data: { searchText: searchText, topRows: topRows || topRowsDefault },
+                success: function (data) {
+                    renderRows(data);
+                },
+                error: function () {
+                    setError('Failed to load members. Please try again.');
+                    renderRows([]);
+                },
+                complete: function () {
+                    setLoading(false);
+                }
+            });
+        }
+
+        // row click
+        $(document).on('click', '#tbodyMembers .mp-row', function () {
+            $('#tbodyMembers .mp-row').removeClass('is-selected');
+            $(this).addClass('is-selected');
+
+            selectedMember = $(this).data('member');
+
+            $('#btnMemberSelect').prop('disabled', !selectedMember);
+            if (selectedMember) {
+                $('#mpSelectedText')
+                    .removeClass('is-empty')
+                    .addClass('is-selected')
+                    .text('Selected: ' + (selectedMember.MemberCode || '') + ' - ' + (selectedMember.GuestName || ''));
+
+            }
+        });
+
+        // search
+        $('#btnMemberSearch').on('click', function () {
+            loadMembers($('#txtMemberSearch').val(), topRowsDefault);
+        });
+
+        // enter key
+        $('#txtMemberSearch').on('keypress', function (e) {
+            if (e.which === 13) { $('#btnMemberSearch').click(); return false; }
+        });
+
+        // clear
+        $('#btnMemberClear').on('click', function () {
+            $('#txtMemberSearch').val('');
+            $('#tbodyMembers').html('<tr><td colspan="2" class="mp-empty">Type and search to load members…</td></tr>');
+            selectedMember = null;
+            $('#btnMemberSelect').prop('disabled', true);
+            $('#mpSelectedText')
+                .removeClass('is-selected')
+                .addClass('is-empty')
+                .text('No member selected');
+
+            setError(null);
+        });
+
+        // select → callback to parent
+        $(document).off('click', '#btnMemberSelect').on('click', '#btnMemberSelect', function () {
+            if (!selectedMember) {
+                ShowWarningMessage('Please select a member.');
+                return;
+            }
+
+            var resId = $('#EditedReservationHeaderId').val();
+
+            if (resId > 0) {
+                var memberguestprofileId = selectedMember.GuestProfileId;
+                var memberCode = selectedMember.MemberCode || '';
+
+                $.ajax({
+                    url: '/reservation/reservations/AttachMemberReference',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { reservationHeaderId: resId, memeberGuestProfileId: memberguestprofileId, memberCode: memberCode },
+                    success: function (data) {
+                        if (data == "OK") {
+                            ShowSuccessMessage('Attached Successfully.');
+                            LoadExistingRecords(); 
+                        }
+                        else {
+                            ShowWarningMessage(data);
+                        }
+
+                    },
+                    error: function () {
+                        // setError('Failed to detach. Please try again.');
+                        ShowErrorMessage('Failed to attach. Please try again.');
+                    },
+                    complete: function () {
+                       
+                    }
+                });
+
+            } else {
+                // Same behaviour as reservation creation flow
+                if (window.MemberSelection_OnSelected && typeof window.MemberSelection_OnSelected === 'function') {
+                    window.MemberSelection_OnSelected(selectedMember);
+                } else if (window.parent && window.parent.MemberSelection_OnSelected && typeof window.parent.MemberSelection_OnSelected === 'function') {
+                    window.parent.MemberSelection_OnSelected(selectedMember);
+                }
+
+                closePopup();
+            }
+
+          
+        });
+
+
+        // close
+        $('#btnMemberClose').on('click', function () {
+            closePopup();
+        });
+
+        function closePopup() {
+            // If you already have a modal close helper, use it
+            if (window.CloseDetailModelSimple && typeof window.CloseDetailModelSimple === 'function') {
+                window.CloseDetailModelSimple();
+                return;
+            }
+            if (window.parent && window.parent.CloseDetailModelSimple && typeof window.parent.CloseDetailModelSimple === 'function') {
+                window.parent.CloseDetailModelSimple();
+                return;
+            }
+
+            // fallback
+            try { $('.modal').modal('hide'); } catch (e) { }
+        }
+
+        // Detach click (works only when reservationHeaderId > 0)
+        $(document).off('click', '#btnDetachMember').on('click', '#btnDetachMember', function () {
+
+            var reservationHeaderId = parseInt($('#EditedReservationHeaderId').val() || '0', 10);
+            if (reservationHeaderId <= 0) return;
+
+            if (!confirm('Detach the attached member from this reservation?')) return;
+
+            setError(null);
+            setLoading(true);
+
+            $.ajax({
+                url: '/reservation/reservations/DetachAttachedMemberReference',
+                type: 'POST',
+                dataType: 'json',
+                data: { reservationHeaderId: reservationHeaderId },
+                success: function (data) {
+
+                    // expecting: { success:true, message:"..." } OR { success:false, message:"..." }
+                    if (data && data.success === false) {
+                        //setError(data.message || 'Failed to detach. Please try again.');
+                        ShowWarningMessage(data.message);
+                        return;
+                    }
+
+                    // ✅ after detach allow attach flow again
+                    setAttachLock(false);
+
+                    // refresh attached section
+                    LoadExistingRecords();
+
+                    // reset selection
+                    selectedMember = null;
+                    $('#btnMemberSelect').prop('disabled', true);
+                    $('#mpSelectedText')
+                        .removeClass('is-selected')
+                        .addClass('is-empty')
+                        .text('No member selected');
+
+
+                    // optional: reload default list
+                    loadMembers('', 10);
+                },
+                error: function () {
+                   // setError('Failed to detach. Please try again.');
+                    ShowErrorMessage('Failed to detach. Please try again.');
+                },
+                complete: function () {
+                    setLoading(false);
+                }
+            });
+        });
+
+
+    })();
+</script>
